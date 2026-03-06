@@ -47,7 +47,7 @@ public class Board {
      */
     public void setPiece(int row, int col, long player) {
         if (player < 0 || player > 2) {
-            throw new IllegalArgumentException("Player must be either 1 or 2. It can also be set to 0 to clear piece.");
+            throw new IllegalArgumentException("Player must be either 1 (computer) or 2 (human). It can also be set to 0 to clear piece.");
         }
 
         int arrayIndex = getInternalIndex(row, col);
@@ -88,6 +88,11 @@ public class Board {
     public int getSize() {
         return size;
     }
+
+    public boolean hasLegalMovesLeft() {
+        return getLegalMoves().length > 0;
+    }
+
     private int getInternalIndex(int row, int col) {
         // divide by 64 to get the absolute first bit of the long, since a long is 64 bits
         return (row * (size * pieceLength) + col * pieceLength) / 64;

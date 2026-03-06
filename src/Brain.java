@@ -1,15 +1,76 @@
 public class Brain {
 
     private final Board board;
+    private final int aiPlayer = 1;
+    private final int humanPlayer = 2;
 
     public Brain(Board board) {
         this.board = board;
     }
 
+    // min max algorithm
     public int minimax(int depth, int alpha, int beta, boolean isMaximizingPlayer) {
+        if (!board.hasLegalMovesLeft()) {
+            return 0; // draw!
+        }
 
+        long winner = checkWinner();
+
+        if (winner > 0) {
+            if (winner == aiPlayer) {
+                return 100000000;
+            }
+            return -100000000;
+        }
+        if (depth == 0) {
+            return 0; // placeholder
+        }
+
+        // maximizing player
+        if (isMaximizingPlayer) {
+            int maxEval = Integer.MIN_VALUE;
+            int[] legalMoves = board.getLegalMoves();
+
+            for (int legalMove : legalMoves) {
+
+                // unpacking 2d index out of 1d index
+                int row = legalMove / board.getSize();
+                int col = legalMove % board.getSize();
+
+                board.setPiece(row, col, aiPlayer);
+
+                int eval = minimax(depth - 1, alpha, beta, !isMaximizingPlayer);
+
+                board.setPiece(row, col, 0);
+
+                maxEval = Math.max(maxEval, eval);
+            }
+            return maxEval;
+
+            // maximizing ai
+        } else {
+            int minEval = Integer.MAX_VALUE;
+            int[] legalMoves = board.getLegalMoves();
+
+            for (int legalMove : legalMoves) {
+
+                // unpacking 2d index out of 1d index
+                int row = legalMove / board.getSize();
+                int col = legalMove % board.getSize();
+
+                board.setPiece(row, col, humanPlayer);
+
+                int eval = minimax(depth - 1, alpha, beta, !isMaximizingPlayer);
+
+                board.setPiece(row, col, 0);
+
+                minEval = Math.min(minEval, eval);
+            }
+            return minEval;
+        }
     }
 
+    // player 1 is computer, player 2 is human
     public long checkWinner() {
         for (int row = 0; row < 15; row++) {
             for (int col = 0; col < 15; col++) {
