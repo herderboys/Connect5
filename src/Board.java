@@ -47,7 +47,7 @@ public class Board {
      */
     public void setPiece(int row, int col, long player) {
         if (player < 0 || player > 2) {
-            throw new IllegalArgumentException("Player must be either 1 (computer) or 2 (human). It can also be set to 0 to clear piece.");
+            throw new IllegalArgumentException("Player must be either 1 (computer) or 2 (human). Set to 0 to clear piece.");
         }
 
         int arrayIndex = getInternalIndex(row, col);

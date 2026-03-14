@@ -23,7 +23,7 @@ public class Brain {
             return -100000000;
         }
         if (depth == 0) {
-            return 0; // placeholder
+            return evaluateBoard(); // placeholder
         }
 
         // maximizing player
@@ -44,6 +44,12 @@ public class Brain {
                 board.setPiece(row, col, 0);
 
                 maxEval = Math.max(maxEval, eval);
+
+                // ab pruning
+                alpha = Math.max(alpha, maxEval);
+                if (beta <= alpha) {
+                    break;
+                }
             }
             return maxEval;
 
@@ -65,15 +71,88 @@ public class Brain {
                 board.setPiece(row, col, 0);
 
                 minEval = Math.min(minEval, eval);
+
+                // ab pruning
+                beta = Math.min(beta, minEval);
+                if (beta <= alpha) {
+                    break;
+                }
             }
             return minEval;
         }
     }
 
-    // player 1 is computer, player 2 is human
+    // returns the index of the best move
+    public int getBestMove(int depth) {
+
+        int maxScore = Integer.MIN_VALUE;
+        int maxScoreIndex = -1;
+
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
+
+        int[] legalMoves = board.getLegalMoves();
+
+        for (int legalMove : legalMoves) {
+
+            // unpacking 2d index out of 1d index
+            int row = legalMove / board.getSize();
+            int col = legalMove % board.getSize();
+
+            board.setPiece(row, col, aiPlayer);
+
+            int eval = minimax(depth - 1, alpha, beta, false);
+
+            board.setPiece(row, col, 0);
+
+            if (eval > maxScore) {
+                maxScore = eval;
+                maxScoreIndex = legalMove;
+            }
+        }
+        return maxScoreIndex;
+    }
+
+    public int evaluateBoard() {
+        int totalScore = 0;
+        int boardSize = board.getSize();
+
+        // all possible directions that we need to check
+        int[][] directions = {{0, 1}, {1, 0}, {1, 1}, {-1, 1}};
+
+        for (int row = 0; row < boardSize; row++) {
+            for (int col = 0; col < boardSize; col++) {
+                if (board.getPiece(row, col) == 0) { continue; }
+
+                for (int[] dir : directions) {
+                    int dRow = dir[0];
+                    int dCol = dir[1];
+
+                    int aiLength = checkDirection(row, col, dRow, dCol, aiPlayer);
+                    totalScore += getScoreForLength(aiLength);
+
+                    int humanLength = checkDirection(row, col, dRow, dCol, humanPlayer);
+                    totalScore -= getScoreForLength(humanLength);
+                }
+            }
+        }
+        return totalScore;
+    }
+
+    private int getScoreForLength(int length) {
+        if (length == 2) { return 10; }
+        if (length == 3) { return 100; }
+        if (length == 4) { return 1000; }
+
+        return 0;
+    }
+
+    // checks if we have a winner
     public long checkWinner() {
-        for (int row = 0; row < 15; row++) {
-            for (int col = 0; col < 15; col++) {
+        int boardSize = board.getSize();
+
+        for (int row = 0; row < boardSize; row++) {
+            for (int col = 0; col < boardSize; col++) {
                 long currentPiece = board.getPiece(row, col);
 
                 // if square is empty, no way to win for anyone, move on
@@ -82,10 +161,10 @@ public class Brain {
                 }
 
                 // checking all valid directions
-                if (checkDirection(row, col, 0, 1, currentPiece, 5) ||
-                        checkDirection(row, col, 1, 0, currentPiece, 5) ||
-                        checkDirection(row, col, 1, 1, currentPiece, 5) ||
-                        checkDirection(row, col, -1, 1, currentPiece, 5)) {
+                if (checkDirection(row, col, 0, 1, currentPiece) == 5 ||
+                        checkDirection(row, col, 1, 0, currentPiece) == 5 ||
+                        checkDirection(row, col, 1, 1, currentPiece) == 5 ||
+                        checkDirection(row, col, -1, 1, currentPiece) == 5) {
                     return currentPiece;
                 }
             }
@@ -101,32 +180,40 @@ public class Brain {
     1, 1 to move down-right
     -1, 1 to move up-right
 
-    returns true if there are n in a row for player, where n = length
+    returns amount of pieces in a row for a given player
      */
 
-    public boolean checkDirection(int startRow, int startCol, int dRow, int dCol, long player, int length) {
+    public int checkDirection(int startRow, int startCol, int dRow, int dCol, long player) {
 
-        // -1 because starting piece counts as first piece
-        int endRow = startRow + ((length - 1) * dRow);
-        int endCol = startCol + ((length - 1) * dCol);
+        int boardSize = board.getSize();
 
-        if (endRow > board.getSize() - 1 || endRow < 0 || endCol < 0 || endCol > board.getSize() - 1) {
-            return false;
+        // make sure we're not standing in middle of row, only counting complete rows
+        int prevRow = startRow - dRow;
+        int prevCol = startCol - dCol;
+
+        if (prevRow >= 0 && prevCol >= 0 && prevRow < boardSize && prevCol < boardSize) {
+
+            if (board.getPiece(prevRow, prevCol) == player) {
+                return 0;
+            }
+
         }
-
         int count = 0;
         int row = startRow;
         int col = startCol;
 
-        while (count < length) {
+        while (true) {
+            if (row < 0 || col < 0 || row >= boardSize || col >= boardSize) {
+                return count;
+            }
+
             if (board.getPiece(row, col) == player) {
                 count++;
+                row += dRow;
+                col += dCol;
             } else {
-                return false;
+                return count;
             }
-            row += dRow;
-            col += dCol;
         }
-        return count == length;
     }
 }
