@@ -1,4 +1,4 @@
-# Connect-5 Engine
+# Connect-5 engine
 
 Java-based console game where a human player competes against an AI opponent to connect five pieces in a row. The engine is built with a focus on performance, utilizing bitwise operations for board state management and the Minimax algorithm with Alpha-Beta pruning for AI decision-making.
 
