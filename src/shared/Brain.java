@@ -1,3 +1,5 @@
+package shared;
+
 public class Brain {
 
     private final Board board;
@@ -10,24 +12,29 @@ public class Brain {
 
     // min max algorithm
     public int minimax(int depth, int alpha, int beta, boolean isMaximizingPlayer) {
-        if (!board.hasLegalMovesLeft()) {
+
+        long winner = board.checkWinner();
+
+        // returns a massive score if someone wins to always make it choose outcomes with wins
+        if (winner > 0) {
+            if (winner == aiPlayer) {
+                return 100000000 + depth; // + depth so it prioritizes faster wins
+            }
+            return -100000000 - depth; // - depth to punish early losses
+        }
+
+        if (board.hasNoLegalMovesLeft()) {
             return 0; // draw!
         }
 
-        long winner = checkWinner();
-
-        if (winner > 0) {
-            if (winner == aiPlayer) {
-                return 100000000;
-            }
-            return -100000000;
-        }
+        // nobody won yet, guess who is doing better in game
         if (depth == 0) {
-            return evaluateBoard(); // placeholder
+            return evaluateBoard();
         }
 
-        // maximizing player
+        // maximizing player, ai turn
         if (isMaximizingPlayer) {
+
             int maxEval = Integer.MIN_VALUE;
             int[] legalMoves = board.getLegalMoves();
 
@@ -37,23 +44,32 @@ public class Brain {
                 int row = legalMove / board.getSize();
                 int col = legalMove % board.getSize();
 
+                // simulate ai move
                 board.setPiece(row, col, aiPlayer);
 
+                // recursive call to minimax, false because human turn (= opposite of current's turn)
                 int eval = minimax(depth - 1, alpha, beta, !isMaximizingPlayer);
 
+                // undo sim
                 board.setPiece(row, col, 0);
 
+                // keeping track of best score
                 maxEval = Math.max(maxEval, eval);
 
                 // ab pruning
+                // updates guaranteed minimum ai score
                 alpha = Math.max(alpha, maxEval);
+
+                // if human (beta) found move that results in lower score than ai (alpha) found,
+                // human will never allow game to reach this state. therefore cancel branch
                 if (beta <= alpha) {
                     break;
                 }
             }
+            // push the best ai score up recursion tree
             return maxEval;
 
-            // maximizing ai
+            // minimizing player, human turn
         } else {
             int minEval = Integer.MAX_VALUE;
             int[] legalMoves = board.getLegalMoves();
@@ -64,31 +80,43 @@ public class Brain {
                 int row = legalMove / board.getSize();
                 int col = legalMove % board.getSize();
 
+                // simulate human move
                 board.setPiece(row, col, humanPlayer);
 
+                // recursive call to minimax, false because ai turn (= opposite of current's turn)
                 int eval = minimax(depth - 1, alpha, beta, !isMaximizingPlayer);
 
+                // undo sim
                 board.setPiece(row, col, 0);
 
+                // keeping track of worst (best for human) score
                 minEval = Math.min(minEval, eval);
 
                 // ab pruning
+                // updates the guaranteed max human score
                 beta = Math.min(beta, minEval);
+
+                // same as before, ai found a move with higher score than what
+                // human found here. cancel branch because ai will never allow this state
                 if (beta <= alpha) {
                     break;
                 }
             }
+            // push worst case scenario up tree
             return minEval;
         }
     }
 
-    // returns the index of the best move
+    // returns the 1D index of the best move, this is where minimaxing is actually applied
     public int getBestMove(int depth) {
 
         int maxScore = Integer.MIN_VALUE;
         int maxScoreIndex = -1;
 
+        // minimum score AI can guarantee so far
         int alpha = Integer.MIN_VALUE;
+
+        // maximum score human can guarantee so far
         int beta = Integer.MAX_VALUE;
 
         int[] legalMoves = board.getLegalMoves();
@@ -99,16 +127,22 @@ public class Brain {
             int row = legalMove / board.getSize();
             int col = legalMove % board.getSize();
 
+            // simulating move
             board.setPiece(row, col, aiPlayer);
 
+            // checking what score this move would give with minimax
             int eval = minimax(depth - 1, alpha, beta, false);
 
+            // undoing the move, this is just a sim
             board.setPiece(row, col, 0);
 
+            // check if simulated move gave better result than previous best
             if (eval > maxScore) {
                 maxScore = eval;
                 maxScoreIndex = legalMove;
             }
+            // now we know we can get at least maxScore, alpha is updated to this
+            alpha = maxScore;
         }
         return maxScoreIndex;
     }
@@ -128,10 +162,10 @@ public class Brain {
                     int dRow = dir[0];
                     int dCol = dir[1];
 
-                    int aiLength = checkDirection(row, col, dRow, dCol, aiPlayer);
+                    int aiLength = board.checkDirection(row, col, dRow, dCol, aiPlayer);
                     totalScore += getScoreForLength(aiLength);
 
-                    int humanLength = checkDirection(row, col, dRow, dCol, humanPlayer);
+                    int humanLength = board.checkDirection(row, col, dRow, dCol, humanPlayer);
                     totalScore -= getScoreForLength(humanLength);
                 }
             }
@@ -147,73 +181,4 @@ public class Brain {
         return 0;
     }
 
-    // checks if we have a winner
-    public long checkWinner() {
-        int boardSize = board.getSize();
-
-        for (int row = 0; row < boardSize; row++) {
-            for (int col = 0; col < boardSize; col++) {
-                long currentPiece = board.getPiece(row, col);
-
-                // if square is empty, no way to win for anyone, move on
-                if (currentPiece == 0) {
-                    continue;
-                }
-
-                // checking all valid directions
-                if (checkDirection(row, col, 0, 1, currentPiece) == 5 ||
-                        checkDirection(row, col, 1, 0, currentPiece) == 5 ||
-                        checkDirection(row, col, 1, 1, currentPiece) == 5 ||
-                        checkDirection(row, col, -1, 1, currentPiece) == 5) {
-                    return currentPiece;
-                }
-            }
-        }
-        return 0;
-    }
-
-    /*
-    helper method to check 5 in a row for a certain direction.
-    dRow is direction of row, dCol is direction of column
-    0, 1 to move right (horizontal)
-    1, 0 to move down (vertical)
-    1, 1 to move down-right
-    -1, 1 to move up-right
-
-    returns amount of pieces in a row for a given player
-     */
-
-    public int checkDirection(int startRow, int startCol, int dRow, int dCol, long player) {
-
-        int boardSize = board.getSize();
-
-        // make sure we're not standing in middle of row, only counting complete rows
-        int prevRow = startRow - dRow;
-        int prevCol = startCol - dCol;
-
-        if (prevRow >= 0 && prevCol >= 0 && prevRow < boardSize && prevCol < boardSize) {
-
-            if (board.getPiece(prevRow, prevCol) == player) {
-                return 0;
-            }
-
-        }
-        int count = 0;
-        int row = startRow;
-        int col = startCol;
-
-        while (true) {
-            if (row < 0 || col < 0 || row >= boardSize || col >= boardSize) {
-                return count;
-            }
-
-            if (board.getPiece(row, col) == player) {
-                count++;
-                row += dRow;
-                col += dCol;
-            } else {
-                return count;
-            }
-        }
-    }
 }

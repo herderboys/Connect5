@@ -1,10 +1,12 @@
+package shared;
+
 public class Board {
     /*
     representing board pieces with two bits (00 = empty, 01 = player 1, 10 = player 2).
     we want a 15x15 grid, which is 225 squares. each square is 2 bits, so we need 450 bits.
     a long is 64 bits, and 64 x 8 = 512 which 450 fits into.
      */
-    private final long[] board = new long[8];
+    private long[] board = new long[8];
     private final int size ; // how many pieces to a side
     private final int pieceLength;
 
@@ -81,6 +83,10 @@ public class Board {
         return ret;
     }
 
+    public long[] getBoard() {
+        return board;
+    }
+
     public int getIndex(int row, int col) {
         return row * size + col;
     }
@@ -89,8 +95,78 @@ public class Board {
         return size;
     }
 
-    public boolean hasLegalMovesLeft() {
-        return getLegalMoves().length > 0;
+    public void setBoard(long[] newBoard) {
+        this.board = newBoard;
+    }
+
+    public boolean hasNoLegalMovesLeft() {
+        return getLegalMoves().length == 0;
+    }
+
+    // checks if we have a winner
+    public long checkWinner() {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                long currentPiece = getPiece(row, col);
+
+                // if square is empty, no way to win for anyone, move on
+                if (currentPiece == 0) {
+                    continue;
+                }
+
+                // checking all valid directions
+                if (checkDirection(row, col, 0, 1, currentPiece) >= 5 ||
+                        checkDirection(row, col, 1, 0, currentPiece) >= 5 ||
+                        checkDirection(row, col, 1, 1, currentPiece) >= 5 ||
+                        checkDirection(row, col, -1, 1, currentPiece) >= 5) {
+                    return currentPiece;
+                }
+            }
+        }
+        return 0;
+    }
+
+    /*
+    helper method to check 5 in a row for a certain direction.
+    dRow is direction of row, dCol is direction of column
+    0, 1 to move right (horizontal)
+    1, 0 to move down (vertical)
+    1, 1 to move down-right
+    -1, 1 to move up-right
+
+    returns amount of pieces in a row for a given player
+     */
+
+    public int checkDirection(int startRow, int startCol, int dRow, int dCol, long player) {
+
+        // make sure we're not standing in middle of row, only counting complete rows
+        int prevRow = startRow - dRow;
+        int prevCol = startCol - dCol;
+
+        if (prevRow >= 0 && prevCol >= 0 && prevRow < size && prevCol < size) {
+
+            if (getPiece(prevRow, prevCol) == player) {
+                return 0;
+            }
+
+        }
+        int count = 0;
+        int row = startRow;
+        int col = startCol;
+
+        while (true) {
+            if (row < 0 || col < 0 || row >= size || col >= size) {
+                return count;
+            }
+
+            if (getPiece(row, col) == player) {
+                count++;
+                row += dRow;
+                col += dCol;
+            } else {
+                return count;
+            }
+        }
     }
 
     private int getInternalIndex(int row, int col) {
