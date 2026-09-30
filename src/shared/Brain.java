@@ -1,11 +1,13 @@
 package shared;
 
+// "AI" class, brain that calculates best move for the AI
 public class Brain {
 
     private final Board board;
     private final int aiPlayer = 1;
     private final int humanPlayer = 2;
 
+    // instantiated with a board
     public Brain(Board board) {
         this.board = board;
     }
@@ -147,6 +149,7 @@ public class Brain {
         return maxScoreIndex;
     }
 
+    // returns a score interpretable by ai to determine how "good" it's doing
     public int evaluateBoard() {
         int totalScore = 0;
         int boardSize = board.getSize();
@@ -173,6 +176,7 @@ public class Brain {
         return totalScore;
     }
 
+    // setting values for how good (good = likely to win) a certain row is for the ai
     private int getScoreForLength(int length) {
         if (length == 2) { return 10; }
         if (length == 3) { return 100; }
@@ -180,5 +184,4 @@ public class Brain {
 
         return 0;
     }
-
 }

@@ -5,12 +5,15 @@ import java.net.*;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+// server to hold all game sessions and players
 public class Server {
     private static final ConcurrentHashMap<String, GameSession> sessions = new ConcurrentHashMap<>();
 
+    // empty constructor, not instantiated
     public Server() {
     }
 
+    // starting server method
     private static void startServer() {
         // local host
         int port = 8000;
@@ -78,6 +81,7 @@ public class Server {
         return ret.toString();
     }
 
+    // main method, only calls startServer()
     public static void main(String[] args) {
         startServer();
 

@@ -1,0 +1,96 @@
+/* Färger från https://www.su.se/medarbetare/kommunikation/grafisk-manual/färger-1.362110 */
+
+body {
+  color: #000000;
+  background: #a3a86b;
+}
+
+.content {
+  color: #000000; //rgb(0, 47, 95);
+  background: rgb(255, 255, 255);
+  border-left: #000000 2px solid;
+  border-bottom: #000000 2px solid;
+}
+
+.bottom {
+  color: #000000; //rgb(0, 47, 95);
+  background: #a3a86b;
+}
+
+a:link {
+  color: #000000; //#002f5f;
+}
+
+a:visited {
+  color: #000000; //#002f5f;
+}
+
+a:link:hover {
+  background: #d95e00;
+}
+
+a:visited:hover {
+  background: #d95e00;
+}
+
+.navigation h1 {
+  color: #002f5f;
+  background: #acdee6;
+  //border-bottom: #d95e00 5px solid;
+}
+
+.content h1 {
+  color: #d95e00;
+  background: #002f5f;
+  //border-bottom: #d95e00 5px solid;
+}
+
+h3, h4, h5 {
+  color: #acdee6; //#a3a86b;
+}
+
+h2 {
+  color: #a3a86b; //#acdee6; //#002f5f;
+  border-bottom: #a3a86b 1px dashed;
+  width: 98%;
+}
+
+pre {
+  color: #000000; //rgb(0, 47, 95);
+  background: rgb(234, 234, 234);
+  border: rgb(49, 208, 247) 1px solid;
+}
+
+code {
+  color: #000000; //rgb(0, 47, 95);
+  background: rgb(234, 234, 234);
+}
+
+td {
+  border: rgb(0, 0, 0) 1px solid;
+}
+
+.table_header {
+  color: #000000;
+  background: #acdee6;
+  border: #000000 1px solid;
+}
+
+input {
+  //color: #f0bf99; //rgb(0, 47, 95);
+  //background: #d95e00;
+}
+
+input[type=submit] {
+  color: #000000;
+  background: #d95e00;
+  border: #000000 1px solid;
+}
+
+textarea {
+
+}
+
+.link_external {
+
+}

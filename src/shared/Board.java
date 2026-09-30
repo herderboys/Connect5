@@ -10,11 +10,13 @@ public class Board {
     private final int size ; // how many pieces to a side
     private final int pieceLength;
 
+    // instantiating with a fixed side size, and a fixed piece length for placed pieces
     public Board(int size, int pieceLength) {
         this.size = size;
         this.pieceLength = pieceLength;
     }
 
+    // checking which moves are legal to make
     public int[] getLegalMoves() {
         int emptyPlaces = 0;
 
@@ -69,6 +71,7 @@ public class Board {
         board[arrayIndex] |= pieceMask;
     }
 
+    // returns value of piece at a specific index
     public long getPiece(int row, int col) {
 
         int arrayIndex = getInternalIndex(row, col);
@@ -83,22 +86,27 @@ public class Board {
         return ret;
     }
 
+    // returns entire board state
     public long[] getBoard() {
         return board;
     }
 
+    // getting index of piece, useful in loops
     public int getIndex(int row, int col) {
         return row * size + col;
     }
 
+    // getter for size of board
     public int getSize() {
         return size;
     }
 
+    // sets a new board to this board, completely overwrites current state
     public void setBoard(long[] newBoard) {
         this.board = newBoard;
     }
 
+    // boolean to check if no moves are available, basically checking if a draw has occurred
     public boolean hasNoLegalMovesLeft() {
         return getLegalMoves().length == 0;
     }
@@ -169,6 +177,7 @@ public class Board {
         }
     }
 
+    // gets internal index of long array
     private int getInternalIndex(int row, int col) {
         // divide by 64 to get the absolute first bit of the long, since a long is 64 bits
         return (row * (size * pieceLength) + col * pieceLength) / 64;

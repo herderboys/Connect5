@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
+// class for clients to initiate a game
 public class Game {
     private final Board board;
     private final Brain brain;
@@ -16,6 +17,7 @@ public class Game {
     private final int boardSize;
     private int playerNumber = 0;
 
+    // initializing necessary game components
     public Game(int boardSize) {
         this.board = new Board(boardSize, 2);
         this.brain = new Brain(board);
@@ -23,6 +25,7 @@ public class Game {
         this.boardSize = board.getSize();
     }
 
+    // starting a game
     public void start() throws IOException {
         System.out.println("Connect-5 engine initialized.");
         System.out.println("Do you wish to play with another player? (Y/N)");
@@ -39,6 +42,7 @@ public class Game {
         }
     }
 
+    // player chooses multiplayer, this loop gets run
     public void startMultiplayerGame() throws IOException {
 
         int port = 8000;
@@ -144,6 +148,7 @@ public class Game {
         }
     }
 
+    // player chooses singleplayer, this loop gets run (with minimax)
     public void startSingleplayerGame() {
         System.out.println("Playing against AI.");
 
@@ -205,6 +210,7 @@ public class Game {
         }
     }
 
+    // method for translating board state to a printable terminal output board readable by humans
     private void printBoard() {
         System.out.print("   ");
         for (int col = 0; col < board.getSize(); col++) {
@@ -231,6 +237,7 @@ public class Game {
         }
     }
 
+    // main method, instantiates a new game with an 8x8 layou   t
     public static void main(String[] args) throws IOException {
         Game game = new Game(8);
         game.start();

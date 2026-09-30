@@ -1,0 +1,46 @@
+body {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 1em;
+}
+
+.bottom {
+  //font-size: 1em;
+}
+
+.smalltext {
+  font-size: 0.6em;
+  line-height: 25%;
+}
+
+pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.1em;
+}
+
+code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.1em;
+}
+
+ul {
+  list-style-type: circle;
+}
+
+.table_header {
+
+}
+
+input {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 1em;
+}
+
+select {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 1em;
+}
+
+textarea {
+  font-family: Verdana, Helvetica, sans-serif;
+  font-size: 1em;
+}

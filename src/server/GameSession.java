@@ -5,6 +5,8 @@ import shared.Board;
 import java.io.*;
 import java.net.Socket;
 
+// class for one game session
+// one game session = a game with 2 players and a room code
 public class GameSession implements Runnable {
     private final int BOARD_SIZE = 8;
     private final int PIECE_LENGTH = 2;
@@ -14,34 +16,31 @@ public class GameSession implements Runnable {
     private Socket player2Socket;
     private Board board;
 
+    // intiantiates game session with room code and first player, initializes a board
     public GameSession(String roomCode, Socket player1Socket) {
         this.roomCode = roomCode;
         this.player1Socket = player1Socket;
         this.board = new Board(BOARD_SIZE, PIECE_LENGTH);
     }
 
+    // setter for adding player 2
     public void setPlayer2(Socket player2) {
         player2Socket = player2;
     }
 
+    // getting to gain access to player 1 (used in Server.java)
     public Socket getPlayer1Socket() {
         return player1Socket;
     }
 
-    public Socket getPlayer2Socket() {
-        return player2Socket;
-    }
-
-    public Board getBoard() {
-        return board;
-    }
-
+    // method to check if session is full / if a new player is allowed to join
     public boolean isFull() {
         return player2Socket != null;
     }
 
     // commenting order of stream writes/reads to keep track of what comes when,
     // that's what the commented numbers mean
+    // run method for starting gamesession thread
     @Override
     public void run() {
         int playerTurn = 1;
