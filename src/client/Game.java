@@ -204,7 +204,7 @@ public class Game {
                 board.setPiece(row, col, currentPlayer);
             } else {
                 System.out.println("AI is thinking...\n");
-                int bestMoveIndex = brain.getBestMove(6);
+                int bestMoveIndex = brain.getBestMove(5);
 
                 int row = bestMoveIndex / boardSize;
                 int col = bestMoveIndex % boardSize;
