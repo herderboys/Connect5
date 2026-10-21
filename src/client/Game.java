@@ -91,6 +91,7 @@ public class Game {
 
         // if that's not sent, game cannot be joined
         if (!joinConfirmation.equals("Player 2 joined.")) {
+            socket.close();
             return;
         }
 
@@ -153,6 +154,7 @@ public class Game {
             }
 
         }
+        socket.close();
     }
 
     // player chooses singleplayer, this loop gets run (with minimax)
