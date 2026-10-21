@@ -86,12 +86,17 @@ public class Game {
 
         // player 2 joined confirmation (found in Server.java)
         String joinConfirmation = inputStream.readUTF(); // 1 or 2 depending on if join or create
+
         System.out.println(joinConfirmation);
+
+        // if that's not sent, game cannot be joined
+        if (!joinConfirmation.equals("Player 2 joined.")) {
+            return;
+        }
 
         while (true) {
 
             // initializing board state for this turn
-
             int boardLength = board.getBoard().length;
             long[] boardState = new long[boardLength];
             for (int i = 0; i < boardLength; i++) {
@@ -104,9 +109,11 @@ public class Game {
             // check if someone has won
             long winner = board.checkWinner();
 
-            if (winner != 0) {
+            // if winner or draw
+            if (winner != 0 || board.hasNoLegalMovesLeft()) {
                 System.out.println(inputStream.readUTF()); // prints who is the winner
                 break;
+
             } else {
                 int turn = inputStream.readInt();
 
@@ -237,7 +244,7 @@ public class Game {
         }
     }
 
-    // main method, instantiates a new game with an 8x8 layou   t
+    // main method, instantiates a new game with an 8x8 layout
     public static void main(String[] args) throws IOException {
         Game game = new Game(8);
         game.start();

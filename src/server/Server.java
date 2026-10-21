@@ -55,14 +55,12 @@ public class Server {
 
                         new Thread(gameSession).start();
                         System.out.println("Game session started.");
+
+                    } else {
+                        outputStream.writeUTF("ERROR. Could not join room. Either room doesn't exist or room is full."); // 1/2
                     }
-
-                } else {
-                    outputStream.writeUTF("ERROR. Could not join room. Either room doesn't exist or room is full."); // 1/2 depending on if player is 1 or 2
                 }
-
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

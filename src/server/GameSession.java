@@ -68,6 +68,13 @@ public class GameSession implements Runnable {
                     outputStream1.writeUTF("Player " + winner + " wins!"); // 2
                     outputStream2.writeUTF("Player " + winner + " wins!"); // 2
                     break;
+
+                    // draw
+                } else if (board.hasNoLegalMovesLeft()) {
+                    outputStream1.writeUTF("Draw!");
+                    outputStream2.writeUTF("Draw!");
+                    break;
+
                 } else {
 
                     // sending player turn to both players so they can check
@@ -75,31 +82,24 @@ public class GameSession implements Runnable {
                     outputStream1.writeInt(playerTurn); // 2
                     outputStream2.writeInt(playerTurn); // 2
 
-                    // inner loop to not have to reinitialize boardState and turn messages
-                    while (true) {
-                        int row = 0;
-                        int col = 0;
+                    int row = 0;
+                    int col = 0;
 
-                        DataInputStream activeInputStream;
-                        DataOutputStream activeOutputStream;
+                    DataInputStream activeInputStream;
 
-                        if (playerTurn == 1) {
-                            activeInputStream = inputStream1;
-                            activeOutputStream = outputStream1;
+                    if (playerTurn == 1) {
+                        activeInputStream = inputStream1;
 
-                        } else {
-                            activeInputStream = inputStream2;
-                            activeOutputStream = outputStream2;
-                        }
-
-                        row = activeInputStream.readInt(); // 1
-                        col = activeInputStream.readInt(); // 2
-
-                        // bounds checks for placed pieces are locally handled
-
-                        board.setPiece(row, col, playerTurn);
-                        break;
+                    } else {
+                        activeInputStream = inputStream2;
                     }
+
+                    row = activeInputStream.readInt(); // 1
+                    col = activeInputStream.readInt(); // 2
+
+                    // bounds checks for placed pieces are locally handled
+
+                    board.setPiece(row, col, playerTurn);
 
                     // if 1 has turn, 3 - 1 = 2. if 2 has turn, 3 - 2 = 1. Elegant!
                     playerTurn = 3 - playerTurn;
