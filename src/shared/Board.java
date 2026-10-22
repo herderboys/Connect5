@@ -1,5 +1,6 @@
 package shared;
 
+// game board stored as bits in a long[], with methods for placing pieces, legal moves and checking for a winner
 public class Board {
     /*
     representing board pieces with two bits (00 = empty, 01 = player 1, 10 = player 2).

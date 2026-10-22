@@ -51,8 +51,8 @@ public class Game {
         DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
         DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
-        System.out.println("Type CREATE if you wish to create a new room.\nType JOIN if you wish to join another player's room.");
-
+        System.out.println(
+                "Type CREATE if you wish to create a new room.\nType JOIN if you wish to join another player's room.");
 
         while (true) {
 
@@ -167,11 +167,6 @@ public class Game {
             printBoard();
             long winner = board.checkWinner();
 
-            if (board.hasNoLegalMovesLeft()) {
-                System.out.println("Draw!");
-                break;
-            }
-
             if (winner > 0) {
                 if (winner == 1) {
                     System.out.println("You lose!");
@@ -179,7 +174,13 @@ public class Game {
                     System.out.println("You win!");
                 }
                 break;
+
             }
+            if (board.hasNoLegalMovesLeft()) {
+                System.out.println("Draw!");
+                break;
+            }
+
             if (currentPlayer == 2) {
                 System.out.println("Your turn. Enter row and column (e.g., '3, 5'): \n");
 
@@ -219,7 +220,8 @@ public class Game {
         }
     }
 
-    // method for translating board state to a printable terminal output board readable by humans
+    // method for translating board state to a printable terminal output board
+    // readable by humans
     private void printBoard() {
         System.out.print("   ");
         for (int col = 0; col < board.getSize(); col++) {
@@ -232,9 +234,12 @@ public class Game {
 
             for (int col = 0; col < board.getSize(); col++) {
                 long piece = board.getPiece(row, col);
-                if (piece == 0) System.out.print(" . ");
-                else if (piece == 1) System.out.print(" X "); // ai / player 1
-                else if (piece == 2) System.out.print(" O "); // human / player 2
+                if (piece == 0)
+                    System.out.print(" . ");
+                else if (piece == 1)
+                    System.out.print(" X "); // ai / player 1
+                else if (piece == 2)
+                    System.out.print(" O "); // human / player 2
             }
             System.out.println();
         }
