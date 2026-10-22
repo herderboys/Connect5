@@ -70,10 +70,11 @@ Om hela brädet fylls utan att någon fått fem i rad blir det oavgjort, och bå
 I singleplayer-läget spelar man `O` mot AI:n, som är `X`. Människan börjar. Inmatningen fungerar på samma sätt som i multiplayer, med samma kontroller för ogiltiga drag. När det är AI:ns tur skrivs `AI is thinking...` ut medan minimax-algoritmen söker fem drag framåt. Det tar oftast bara någon sekund per drag. Tidigare var sökdjupet sex drag, men då tog varje drag ungefär en minut eftersom sökträdet växer så snabbt, så djupet sänktes till fem. När spelet är slut skrivs `You win!`, `You lose!` eller `Draw!` ut. Hur det ser ut syns i den andra bilden under Sammanfattning.
 
 ### Kända begränsningar
-- I singleplayer-läget kontrolleras oavgjort före vinst. Om det sista draget både fyller brädet och ger fem i rad visas därför `Draw!` istället för en vinst. I multiplayer-läget görs kontrollerna i rätt ordning.
 - Om en spelare kopplar ner mitt i en match avbryts sessionen på servern, men den andra spelaren får inget meddelande och blir kvar och väntar på ett drag som aldrig kommer.
 
 ## Framtagande
+Grundversionen av spelet, med brädet, vinstkontrollen och AI:n med minimax, skrevs i mars 2026 som en uppgift i kursen ALDA. Som gesällprov i IPROG har jag byggt vidare på den med det som kursen handlar om: en server med spelsessioner och rumskoder, kommunikation över sockets mellan klient och server, trådar för varje match och ett eget protokoll för spelet.
+
 ### Initial idé
 ![framtagande_1.png](framtagande_1.png)
 
@@ -87,7 +88,7 @@ Min första tanke var en klassisk objektorienterad uppdelning, där människan o
 
 I början tänkte jag använda mig av en vanlig 2d-intarray för att representera spelplanen/brädan \(Board), men eftersom minimax-algoritmen söker så oerhört många olika
 game states så valde jag att använda mig av en enda long\[] för att göra varje lookup så snabb och enkel som möjligt. Det gjorde
-de egna metoderna för att hämta bitar och sätta bitar lite svårare att skriva, men det var värt för optimeringens skull.
+de egna metoderna för att hämta bitar och sätta bitar lite svårare att skriva, men det var värt för optimeringens skull. Det var också väldigt roligt att finslipa mina kunskaper inom bitmanipulering.
 
 ### Implementation av brädlogik
 ![framtagande_3.png](framtagande_3.png)
@@ -123,8 +124,7 @@ Det som saknades var att kunna spela med folk, så då valde jag att göra det s
 *Matchloopen i den första versionen av `GameSession` (september 2026). Siffrorna `// 1` och `// 2` i kommentarerna är numreringen av läsningar och skrivningar som beskrivs nedan.*
 
 Jag ville mest bara lära mig mer om hur det funkar med client/server-logik, och hur den implementeras i lite större skala. Det innebar att `Game.java` delades upp i en `client`-variant,
-att `Server` och `GameSession` skapades från grunden på serversidan, och att `Board`/`Brain` flyttades till ett gemensamt
-`shared`-paket som både klient och server använder.
+att `Server` och `GameSession` skapades från grunden på serversidan, och att `Board`/`Brain` flyttades till ett gemensamt `shared`-paket som både klient och server använder.
 
 Något som var oväntat svårt med implementeringen var att hålla koll på vilka read/writes som hörde till varandra. Jag behövde numrera 
 varje anrop för att hitta ordningen; något som tog upp en större del av den totala arbetstiden än vad jag hade önskat. Annars gick detta ganska smidigt,
@@ -133,7 +133,7 @@ och när jag väl hade delat upp allt i klasserna jag ville ha kom resten av kod
 ### Testning och buggfixar
 ![framtagande_6.png](framtagande_6.png)
 
-*En del av ändringen i `GameSession` som lade till hantering av oavgjort i multiplayer-läget (oktober 2026). Gröna rader är tillagda och röda är borttagna.*
+*En del av ändringen i `GameSession` som la till hantering av oavgjort i multiplayer-läget (oktober 2026). Gröna rader är tillagda och röda är borttagna.*
 
 När jag skrev pseudokoden för beskrivningen gick jag igenom koden steg för steg, och då hittade jag flera brister. Multiplayer-läget hade ingen kontroll för oavgjort, så om brädet blev fullt utan vinnare fortsatte spelet att be om drag som inte gick att göra. En spelare som försökte gå med i ett rum som inte fanns, eller som redan var fullt, fick inget svar alls och blev hängande. Den inre loopen i `GameSession` visade sig också alltid köras exakt en gång, eftersom ogiltiga drag redan stoppas hos klienten, så den togs bort. Till sist upptäckte jag, när jag tog skärmdumparna till den här beskrivningen, att hela servern stängdes av om en klient kopplade ner innan den hade skickat `CREATE` eller `JOIN`. Felhanteringen omslöt hela serverloopen, så den flyttades till att gälla en klient i taget. Alla fyra fixarna testades genom att köra servern och klienterna och spela igenom just de fallen.
 
@@ -293,7 +293,7 @@ human player starts
 
 loop
   print board
-  if there is draw or winner then
+  if there is winner or draw then
     show result
     exit
  
